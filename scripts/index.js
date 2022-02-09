@@ -1,29 +1,36 @@
 const form = document.getElementById('form');
-
 var searchText = document.getElementById('search_text');
-var searchTextValue;
 const clearBtn = document.getElementById('clear_btn');
-
 const searchBtn = document.getElementById('search_btn');
-
 const result_container = document.getElementById('result_container');
+var searchTextValue;
 
 
-searchText.addEventListener('blur', (e) => {
+//Toggle clear button on input change
+searchText.addEventListener('input', (e) => {
     searchTextValue = searchText.value;
-    if (searchTextValue !== "") {
+    var text = removeSpace(searchText.value);
+    if (text.length >= 0) {
         clearBtn.style.visibility = "visible";
+        // console.log("Visible : ",e.target.value);
+        // console.log("Length : ",text.length);
     }
-    if (searchTextValue === "") {
+    if(text.length <= 0){
         clearBtn.style.visibility = "hidden";
+        // console.log("hide : ",e.target.value);
+        // console.log("Length : ",text.length);
     }
-    // searchTextValue = searchTextValue.replace(/\s+/g, ' ').trim();
+})
+
+
+//remove/hide clear button on click
+clearBtn.addEventListener('click',()=>{
+    clearBtn.style.visibility = "hidden";
 })
 
 
 
-// var URL = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${searchTerm}&gsrlimit=20&prop=pageimages|extracts&exchars=${maxChars}&exintro&explaintext&exlimit=max&format=json&origin=*`;
-
+// get max chars according to window size
 const getMaxChars = () => {
     let maxChars;
     let width = window.innerWidth;
@@ -37,31 +44,38 @@ const getMaxChars = () => {
     return maxChars;
 }
 
-const inputText = (text) => {
+
+
+// remove whitespace from input
+const removeSpace = (text) => {
     text = text.replace(/\s+/g, ' ').trim();
     return text;
 }
 
+
+
+//fetch data from API
 const getData = async (text) => {
-    text = inputText(text);
+    text = removeSpace(text);
     let maxChars = getMaxChars();
-    console.log("Text  : ", text)
-    let response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${text}&gsrlimit=20&prop=pageimages|extracts&exchars=${maxChars}&exintro&explaintext&exlimit=max&format=json&origin=*`);
+    // console.log("Text  : ", text)
 
-    let data = await response.json();
+    let response = await axios(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${text}&gsrlimit=20&prop=pageimages|extracts&exchars=${maxChars}&exintro&explaintext&exlimit=max&format=json&origin=*`);
 
-    console.log(typeof (data.query.pages));
-    console.log(data.query.pages['7003']);
+    let data = response.data.query.pages;
 
     var resultArray = [];
-    for (let i in data.query.pages) {
-        resultArray.push(data.query.pages[i]);
+    for (let i in data) {
+        resultArray.push(data[i]);
     }
-    console.log(data.query.pages);
-    console.log(resultArray);
+    // console.log(data);
+    // console.log(resultArray);
     extractData(resultArray);
 }
 
+
+
+//Extract only useful data from the data that API returns
 function extractData(arr) {
     var new_arr = arr.map((val) => {
         var heading = val.title;
@@ -72,14 +86,17 @@ function extractData(arr) {
         return image ? { pageId, heading, image, content } :
             { pageId, heading, content }
     })
-    console.log("New Card : ", new_arr);
+    // console.log("New Card : ", new_arr);
     createCard(new_arr);
 }
 
+
+
+// Create dynamic card using result data
 function createCard(arr) {
     var content = '';
     var href = '';
-    console.log("card: ", arr);
+    // console.log("card: ", arr);
     result_container.innerHTML = content;
     result_container.innerHTML = `<div class="displaying_result"> <span> Displaying ${arr.length} results. </span> </div>`
     for (let i = 0; i < arr.length; i++) {
@@ -100,21 +117,25 @@ function createCard(arr) {
         `;
         result_container.innerHTML += content;
     }
-    console.log("Content : ",content);
+    // console.log("Content : ",content);
 }
 
+
+//On search button click this handler will  be called
 form.addEventListener('submit', (e) => {
     e.preventDefault();
-    console.log(searchTextValue);
+    // console.log(searchTextValue);
     getData(searchTextValue);
 })
 
+
+//On enter button press, this handler will be called
 searchText.addEventListener('keyup', (e) => {
     if(e.keyCode === 13){
         e.preventDefault();
-        console.log(searchTextValue);
+        // console.log(searchTextValue);
         getData(searchTextValue);
-        console.log("KeyCode : ",e.keyCode);
+        // console.log("KeyCode : ",e.keyCode);
     }
 })
 

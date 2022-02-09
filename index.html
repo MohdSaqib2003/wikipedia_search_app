@@ -14,6 +14,7 @@
         integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="./styles/style.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- <link rel="stylesheet" href=".//style.css"> -->
     <title>Search App</title>
 </head>
@@ -41,7 +42,6 @@
                     <input type="text" class="search_text" id="search_text">
                     <div class="buttons">
                         <input type="reset" value="x" class="clear_btn" id="clear_btn">
-
                         <button class="search_btn" id="search_btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
@@ -67,7 +67,6 @@
     <footer>
         <div class="footer"> &lt;&lt; Powered by <a href="">Wikipedia</a> &gt;&gt; </div>
     </footer>
-    <script src="./scripts/index.js"></script>
+    <script src="./scripts/index.js" type="module"></script>
 </body>
-
 </html>
